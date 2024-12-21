@@ -38,14 +38,15 @@ export default function Home() {
     fetchArticles();
   }, [fetchArticles]);
 
-  const groupedArticles = articles.reduce((acc, article) => {
+  const groupedArticles = articles.reduce((acc: Record<string, Article[]>, article: Article) => {
     const source = article.source || "Unknown Source";
     if (!acc[source]) {
       acc[source] = [];
     }
     acc[source].push(article);
     return acc;
-  }, {});
+  }, {} as Record<string, Article[]>);
+  
 
   const toggleSource = (source) => {
     setExpandedSources((prev) => ({
