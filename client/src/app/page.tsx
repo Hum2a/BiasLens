@@ -1,7 +1,8 @@
 "use client";
 
 import './styles.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 interface Article {
   id: string;
@@ -16,10 +17,11 @@ interface Article {
 
 export default function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [expandedSources, setExpandedSources] = useState({});
 
-  const fetchArticles = async () => {
+
+  const fetchArticles = useCallback(async () => {
     try {
       const res = await fetch(`${baseUrl}/api/articles`, { cache: "no-store" });
       if (!res.ok) {
@@ -30,11 +32,11 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching articles:", error);
     }
-  };
-
+  }, [baseUrl]);
+  
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [fetchArticles]);
 
   const groupedArticles = articles.reduce((acc, article) => {
     const source = article.source || "Unknown Source";
@@ -70,7 +72,7 @@ export default function Home() {
       <header className="header">
         <div className="container">
           <h1 className="headerTitle">
-            <img src="./BiasLens.jpg" alt="BiasLens Logo" className="logo" />
+            <Image src="/BiasLens.jpg" alt="BiasLens Logo" className="logo" width={200} height={200} />
           </h1>
           <nav className="nav">
             <ul>
