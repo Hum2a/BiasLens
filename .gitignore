@@ -1,2 +1,8 @@
 .env
 biaslens-2782f-firebase-adminsdk-sfe59-ebb73541fd.json
+
+*.json
+!important-file.json
+
+__pycache__/
+
