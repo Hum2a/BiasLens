@@ -48,13 +48,13 @@ export default function Home() {
   }, {} as Record<string, Article[]>);
   
 
-  const toggleSource = (source) => {
+  const toggleSource = (source: string) => {
     setExpandedSources((prev) => ({
       ...prev,
       [source]: !prev[source],
     }));
-  };
-
+  };  
+  
   const getCardClass = (bias) => {
     switch (bias) {
       case "Left":
