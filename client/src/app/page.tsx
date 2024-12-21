@@ -3,6 +3,17 @@
 import './styles.css';
 import { useState, useEffect } from 'react';
 
+interface Article {
+  id: string;
+  title: string;
+  description: string;
+  source: string;
+  sentiment: string;
+  sentiment_score: number;
+  political_bias: string;
+  url: string;
+}
+
 export default function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const [articles, setArticles] = useState([]);
@@ -14,11 +25,10 @@ export default function Home() {
       if (!res.ok) {
         throw new Error(`API responded with status ${res.status}`);
       }
-      const data = await res.json();
+      const data: Article[] = await res.json();
       setArticles(data);
     } catch (error) {
       console.error("Error fetching articles:", error);
-      setArticles([]);
     }
   };
 
