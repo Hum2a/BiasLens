@@ -18,8 +18,7 @@ interface Article {
 export default function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const [articles, setArticles] = useState<Article[]>([]);
-  const [expandedSources, setExpandedSources] = useState({});
-
+  const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
   const fetchArticles = useCallback(async () => {
     try {
@@ -46,16 +45,15 @@ export default function Home() {
     acc[source].push(article);
     return acc;
   }, {} as Record<string, Article[]>);
-  
 
   const toggleSource = (source: string) => {
     setExpandedSources((prev) => ({
       ...prev,
       [source]: !prev[source],
     }));
-  };  
-  
-  const getCardClass = (bias) => {
+  };
+   
+  const getCardClass = (bias: "Left" | "Right" | "Center" | string) => {
     switch (bias) {
       case "Left":
         return "card left";
