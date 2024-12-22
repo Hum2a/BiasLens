@@ -14,10 +14,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const fetchArticles = async () => {
-  const querySnapshot = await getDocs(collection(db, 'Articles'));
-  const articles = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  return articles;
-};
-
 export default db;
