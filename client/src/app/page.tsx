@@ -20,9 +20,9 @@ export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
-  const fetchArticles = useCallback(async () => {
+  const fetchArticles = async () => {
     try {
-      const res = await fetch(`${baseUrl}/api/articles`, { cache: "no-store" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, { cache: "no-store" });
       if (!res.ok) {
         throw new Error(`API responded with status ${res.status}`);
       }
@@ -30,8 +30,10 @@ export default function Home() {
       setArticles(data);
     } catch (error) {
       console.error("Error fetching articles:", error);
+      setArticles([]); // Fallback to empty articles
     }
-  }, [baseUrl]);
+  };
+  
   
   useEffect(() => {
     fetchArticles();
