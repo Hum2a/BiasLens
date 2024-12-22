@@ -1,5 +1,3 @@
-"use client";
-
 import './styles.css';
 import { useState, useEffect } from 'react';
 import { getDocs, collection } from 'firebase/firestore';
@@ -23,13 +21,18 @@ export default function Home() {
 
   const fetchArticles = async (): Promise<Article[]> => {
     const querySnapshot = await getDocs(collection(db, 'Articles'));
+    console.log("Query Snapshot:", querySnapshot.docs.map((doc) => doc.data())); // Log fetched data
     return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Article[];
-  };  
+  };
+  
 
   useEffect(() => {
     const loadArticles = async () => {
       try {
-        const data = await fetchArticles(); // Await the promise
+        const data = await fetchArticles();
+        if (data.length === 0) {
+          console.warn("No articles found in the database.");
+        }
         setArticles(data);
       } catch (error) {
         console.error("Error fetching articles:", error);
@@ -37,8 +40,9 @@ export default function Home() {
       }
     };
   
-    loadArticles(); // Call the async function inside useEffect
+    loadArticles();
   }, []);
+  
 
   const groupedArticles = articles.reduce((acc: Record<string, Article[]>, article: Article) => {
     const source = article.source || "Unknown Source";
