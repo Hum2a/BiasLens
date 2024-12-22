@@ -1,3 +1,5 @@
+'use client'
+
 import './styles.css';
 import { useState, useEffect } from 'react';
 import { getDocs, collection } from 'firebase/firestore';
