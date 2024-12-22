@@ -2,6 +2,8 @@
 
 import './styles.css';
 import { useState, useEffect } from 'react';
+import { getDocs, collection } from 'firebase/firestore';
+import db from './lib/firebase';
 import Image from 'next/image';
 
 interface Article {
@@ -19,22 +21,23 @@ export default function Home() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
+  const fetchArticles = async (): Promise<Article[]> => {
+    const querySnapshot = await getDocs(collection(db, 'Articles'));
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Article[];
+  };  
+
   useEffect(() => {
-    const fetchArticles = async () => {
+    const loadArticles = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, { cache: "no-store" });
-        if (!res.ok) {
-          throw new Error(`API responded with status ${res.status}`);
-        }
-        const data: Article[] = await res.json();
+        const data = await fetchArticles(); // Await the promise
         setArticles(data);
       } catch (error) {
         console.error("Error fetching articles:", error);
         setArticles([]);
       }
     };
-
-    fetchArticles();
+  
+    loadArticles(); // Call the async function inside useEffect
   }, []);
 
   const groupedArticles = articles.reduce((acc: Record<string, Article[]>, article: Article) => {
