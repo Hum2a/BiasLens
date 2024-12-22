@@ -16,7 +16,7 @@ interface Article {
 }
 
 export default function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://biaslens.onrender.com";
   const [articles, setArticles] = useState<Article[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
