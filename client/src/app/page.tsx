@@ -1,7 +1,7 @@
 "use client";
 
 import './styles.css';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 interface Article {
@@ -16,28 +16,26 @@ interface Article {
 }
 
 export default function Home() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://biaslens.onrender.com";
   const [articles, setArticles] = useState<Article[]>([]);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
 
-  const fetchArticles = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`API responded with status ${res.status}`);
-      }
-      const data: Article[] = await res.json();
-      setArticles(data);
-    } catch (error) {
-      console.error("Error fetching articles:", error);
-      setArticles([]); // Fallback to empty articles
-    }
-  };
-  
-  
   useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error(`API responded with status ${res.status}`);
+        }
+        const data: Article[] = await res.json();
+        setArticles(data);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+        setArticles([]);
+      }
+    };
+
     fetchArticles();
-  }, [fetchArticles]);
+  }, []);
 
   const groupedArticles = articles.reduce((acc: Record<string, Article[]>, article: Article) => {
     const source = article.source || "Unknown Source";
@@ -46,7 +44,7 @@ export default function Home() {
     }
     acc[source].push(article);
     return acc;
-  }, {} as Record<string, Article[]>);
+  }, {});
 
   const toggleSource = (source: string) => {
     setExpandedSources((prev) => ({
