@@ -11,6 +11,7 @@
   "dependencies": {
     "browserslist": "^4.24.3",
     "firebase": "^11.1.0",
+    "framer-motion": "^12.4.7",
     "next": "15.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
