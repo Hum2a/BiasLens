@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { getDocs, collection } from 'firebase/firestore';
 import db from './lib/firebase';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 
 interface Article {
   id: string;
@@ -80,26 +79,20 @@ export default function Home() {
   };
 
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBias = selectedBias === 'all' || article.political_bias.toLowerCase() === selectedBias;
+    const matchesSearch = (
+      (article.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (article.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
+    const matchesBias = selectedBias === 'all' || 
+      (article.political_bias?.toLowerCase() || '') === selectedBias;
     return matchesSearch && matchesBias;
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
+    <div>
       <header className="header">
         <div className="container headerContent">
-          <motion.div 
-            className="headerTitle"
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
+          <div className="headerTitle">
             <Image 
               src="/BiasLens.jpg" 
               alt="BiasLens Logo" 
@@ -108,14 +101,9 @@ export default function Home() {
               className="logo"
             />
             BiasLens
-          </motion.div>
+          </div>
           
-          <motion.div 
-            className="searchBar"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
+          <div className="searchBar">
             <input
               type="text"
               placeholder="Search for articles..."
@@ -146,55 +134,40 @@ export default function Home() {
                 Grouped View
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </header>
 
       <main className="container">
-        <motion.h1 
-          className="title"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
+        <h1 className="title">
           Discover Different Perspectives
-        </motion.h1>
+        </h1>
 
         {filteredArticles.length === 0 ? (
-          <motion.div 
-            className="noArticles"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
+          <div className="noArticles">
             <h2>No articles found</h2>
             <p>Try adjusting your search criteria</p>
-          </motion.div>
+          </div>
         ) : viewMode === 'grouped' ? (
-          <motion.div 
-            className="groupedView"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: {
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-          >
+          // Grouped view - articles grouped by source
+          <div className="groupedView">
             {Object.entries(groupedArticles).map(([source, sourceArticles]) => {
+              // Filter source articles based on search and bias
               const filteredSourceArticles = sourceArticles.filter(article => {
-                const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                     article.description.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesBias = selectedBias === 'all' || article.political_bias.toLowerCase() === selectedBias;
+                const matchesSearch = (
+                  (article.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                  (article.description?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+                );
+                const matchesBias = selectedBias === 'all' || 
+                  (article.political_bias?.toLowerCase() || '') === selectedBias;
                 return matchesSearch && matchesBias;
               });
               
+              // Skip sources with no matching articles
               if (filteredSourceArticles.length === 0) return null;
               
               return (
-                <motion.div key={source} className="sourceGroup">
+                <div key={source} className="sourceGroup">
                   <div 
                     className="sourceHeader" 
                     onClick={() => toggleSource(source)}
@@ -205,30 +178,21 @@ export default function Home() {
                   
                   {expandedSources[source] && (
                     <div className="sourceArticles">
-                      {filteredSourceArticles.map((article, index) => (
-                        <motion.div
+                      {filteredSourceArticles.map((article) => (
+                        <div
                           key={article.id}
-                          className={getCardClass(article.political_bias)}
-                          variants={{
-                            hidden: { y: 20, opacity: 0 },
-                            visible: { y: 0, opacity: 1 }
-                          }}
-                          transition={{ duration: 0.6 }}
-                          whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                          style={{ animationDelay: `${index * 100}ms` }}
+                          className={getCardClass(article.political_bias || '')}
                         >
-                          <h2 className="cardTitle">{article.title}</h2>
-                          <p className="cardDescription">{article.description}</p>
+                          <h2 className="cardTitle">{article.title || 'Untitled'}</h2>
+                          <p className="cardDescription">{article.description || 'No description available'}</p>
                           
                           <div className="cardStats">
                             <div className="statRow">
                               <span className="statLabel">Sentiment</span>
                               <div className="sentimentBar">
-                                <motion.div 
+                                <div 
                                   className="sentimentFill"
-                                  initial={{ scaleX: 0 }}
-                                  animate={{ scaleX: (article.sentiment_score + 1) / 2 }}
-                                  transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+                                  style={{ transform: `scaleX(${(article.sentiment_score + 1) / 2})` }}
                                 />
                               </div>
                               <span>{article.sentiment}</span>
@@ -236,74 +200,49 @@ export default function Home() {
                             
                             <div className="statRow">
                               <span className="statLabel">Bias</span>
-                              <motion.span 
-                                className={`bias-tag ${article.political_bias.toLowerCase()}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                {article.political_bias}
-                              </motion.span>
+                              <span className={`bias-tag ${(article.political_bias?.toLowerCase() || 'unknown')}`}>
+                                {article.political_bias || 'Unknown'}
+                              </span>
                             </div>
                           </div>
 
-                          <motion.a
+                          <a
                             href={article.url}
                             className="cardLink"
                             target="_blank"
                             rel="noopener noreferrer"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
                           >
                             Read Article
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                               <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                          </motion.a>
-                        </motion.div>
+                          </a>
+                        </div>
                       ))}
                     </div>
                   )}
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         ) : (
-          <motion.div 
-            className="grid"
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: {
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-          >
-            {filteredArticles.map((article, index) => (
-              <motion.div
+          // List view (original grid)
+          <div className="grid">
+            {filteredArticles.map((article) => (
+              <div
                 key={article.id}
-                className={getCardClass(article.political_bias)}
-                variants={{
-                  hidden: { y: 20, opacity: 0 },
-                  visible: { y: 0, opacity: 1 }
-                }}
-                transition={{ duration: 0.6 }}
-                whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                style={{ animationDelay: `${index * 100}ms` }}
+                className={getCardClass(article.political_bias || '')}
               >
-                <h2 className="cardTitle">{article.title}</h2>
-                <p className="cardDescription">{article.description}</p>
+                <h2 className="cardTitle">{article.title || 'Untitled'}</h2>
+                <p className="cardDescription">{article.description || 'No description available'}</p>
                 
                 <div className="cardStats">
                   <div className="statRow">
                     <span className="statLabel">Sentiment</span>
                     <div className="sentimentBar">
-                      <motion.div 
+                      <div 
                         className="sentimentFill"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: (article.sentiment_score + 1) / 2 }}
-                        transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+                        style={{ transform: `scaleX(${(article.sentiment_score + 1) / 2})` }}
                       />
                     </div>
                     <span>{article.sentiment}</span>
@@ -311,32 +250,26 @@ export default function Home() {
                   
                   <div className="statRow">
                     <span className="statLabel">Bias</span>
-                    <motion.span 
-                      className={`bias-tag ${article.political_bias.toLowerCase()}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {article.political_bias}
-                    </motion.span>
+                    <span className={`bias-tag ${(article.political_bias?.toLowerCase() || 'unknown')}`}>
+                      {article.political_bias || 'Unknown'}
+                    </span>
                   </div>
                 </div>
 
-                <motion.a
+                <a
                   href={article.url}
                   className="cardLink"
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   Read Article
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </motion.a>
-              </motion.div>
+                </a>
+              </div>
             ))}
-          </motion.div>
+          </div>
         )}
       </main>
 
@@ -353,6 +286,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </motion.div>
+    </div>
   );
 }
