@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { getDocs, collection } from 'firebase/firestore';
 import db from './lib/firebase';
 import Image from 'next/image';
+import JsonLd from './components/JsonLd';
 
 interface Article {
   id: string;
@@ -88,8 +89,34 @@ export default function Home() {
     return matchesSearch && matchesBias;
   });
 
+  // JSON-LD structured data
+  const websiteStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'BiasLens',
+    description: 'Uncovering media bias through data analysis',
+    url: 'https://biaslens.com',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://biaslens.com/?search={search_term_string}',
+      'query-input': 'required name=search_term_string'
+    }
+  };
+
+  const organizationStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'BiasLens',
+    url: 'https://biaslens.com',
+    logo: 'https://biaslens.com/BiasLens.jpg',
+    description: 'BiasLens helps users understand the political bias and sentiment of news articles across multiple sources.',
+  };
+
   return (
     <div>
+      <JsonLd data={websiteStructuredData} />
+      <JsonLd data={organizationStructuredData} />
+      
       <header className="header">
         <div className="container headerContent">
           <div className="headerTitle">
